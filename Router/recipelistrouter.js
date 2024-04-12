@@ -1,38 +1,78 @@
 const router=require('express').Router()
 const user=require('../Model/User')
+const recipelist=require('../Model/recipe')
+
 const Crypto_pass=require('crypto-js');
 const { verifytoken} = require('../verifytoken');
 
-router.post('/dataupload',async(req,res)=>{
-console.log("req.body",req.body);
-const {firstname,lastname,email,phone,password,passkey,age}=req.body
-try{
-// const newdata=new user(req.body)
-const newdata=new user({
-    firstname:firstname,
-    lastname:lastname,
-    email:email,
-    phone:phone,
-    password:Crypto_pass.AES.encrypt(password,process.env.passkey).toString(),
-    age:age,
-
-})
 
 
+// router.post('/recipelistupload', async (req, res) => {
+//     try {
+//         const { recipes } = req.body; // Extract the recipes array from the request body
 
-//.........................post data
-const saveData=await newdata.save()
-console.log('saveData',saveData);
-res.status(200).json('success')
-}catch(err){
-    res.status(500).json('failed')
+//         // Iterate over each recipe and save it to the database
+//         for (const recipeData of recipes) {
+//             const { title, description, ingredients, instructions } = recipeData;
 
-}
+//             const newRecipe = new recipelist({
+//                 title: title,
+//                 description: description,
+//                 ingredients: ingredients,
+//                 instructions: instructions
+//             });
+
+//             // Save the recipe data to the database
+//             await newRecipe.save();
+//         }
+
+//         console.log('Recipes inserted successfully');
+//         res.status(200).json('success');
+//     } catch (err) {
+//         console.error('Error occurred while saving recipe data:', err);
+//         res.status(500).json('failed');
+//     }
+// });
+
+router.post('/dataupload', async (req, res) => {
+    const { sender, message } = req.body;
+
+    if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+    }
+
+    try {
+        // Create a new chat message object with the received data
+        const newChatMessage = new recipelist({
+            sender: sender,
+            message: message
+        });
+
+        // Save the new chat message to the database
+        await newChatMessage.save();
+        res.status(200).json({ message: 'Chat message saved successfully' });
+    } catch (error) {
+        console.error('Error saving chat message:', error.message);
+        res.status(500).json({ message: 'Failed to save chat message', error: error.message });
+    }
+});
 
 
-})
-
-
+router.delete('/deletedata/:id', async (req, res) => {
+    const id = req.params.id;
+    
+    try {
+        const result = await recipelist.findOneAndDelete({ _id: id });
+        if (result) {
+            res.status(200).json({ message: 'Data deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Data not found' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: `Internal server error ${id}` });
+        
+    }
+});
 
 
 //...........................................getalldata
@@ -40,7 +80,7 @@ router.get('/getdata',async(req,res)=>{
     console.log("req.body",req.body);
     
 try{
-const alldata=await user.find()
+const alldata=await recipelist.find()
 res.status(200).json(alldata)
 }catch(err){
 res.status(500).json('error')

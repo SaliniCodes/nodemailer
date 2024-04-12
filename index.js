@@ -8,6 +8,8 @@ app.use(cors())
 
 
 const userRouter=require('./Router/userrouter')
+const recipelistrouter=require('./Router/recipelistrouter')
+
 const loginRouter=require('./Router/login')
 
 const emailRouter=require('./routes/Approuters')
@@ -20,6 +22,7 @@ console.log('Database connected')
 })    
 app.use(express.json()) 
 app.use('/api',userRouter)
+app.use('/recipelistapi',recipelistrouter)
 app.use('/loginapi',loginRouter)
 app.use('/emailapi',emailRouter)
 
