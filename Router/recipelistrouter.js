@@ -87,6 +87,22 @@ router.put('/updatedata/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+router.get('/getsearcheddata', async (req, res) => {
+    try {
+      const query = req.query.query; // Extract the search query from the request query parameters
+      const searchTerms = query.split(',').map(term => term.trim()); // Split the query into individual search terms and trim whitespace
+  
+      // Construct a regex search query for each term and combine them using $or operator
+      const searchConditions = searchTerms.map(term => ({ message: { $regex: term, $options: 'i' } }));
+      const searchData = await recipelist.find({ $or: searchConditions });
+  
+      res.status(200).json(searchData); // Return the filtered data
+    } catch (err) {
+      res.status(500).json({ error: 'Error fetching data' });
+    }
+  });
+
 //...........................................getalldata
 router.get('/getdata',async(req,res)=>{
     console.log("req.body",req.body);
