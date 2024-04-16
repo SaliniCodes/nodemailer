@@ -75,6 +75,18 @@ router.delete('/deletedata/:id', async (req, res) => {
 });
 
 
+router.put('/updatedata/:id', async (req, res) => {
+    try {
+        const updatedata = await recipelist.findByIdAndUpdate(
+            req.params.id, 
+            { message: req.body.message }, 
+            { new: true }
+        );
+        res.status(200).json(updatedata);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 //...........................................getalldata
 router.get('/getdata',async(req,res)=>{
     console.log("req.body",req.body);
