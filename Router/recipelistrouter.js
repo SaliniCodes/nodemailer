@@ -5,6 +5,58 @@ const recipelist=require('../Model/recipe')
 const Crypto_pass=require('crypto-js');
 const { verifytoken} = require('../verifytoken');
 
+router.post('/searchedrecipeupload', async (req, res) => {
+    const { sender, message } = req.body;
+
+    if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+    }
+
+    try {
+        // Create a new chat message object with the received data
+        const newChatMessage = new searchedrecipelist({
+            sender: sender,
+            message: message
+        });
+
+        // Save the new chat message to the database
+        await newChatMessage.save();
+        res.status(200).json({ message: 'Chat message saved successfully' });
+    } catch (error) {
+        console.error('Error saving chat message:', error.message);
+        res.status(500).json({ message: 'Failed to save chat message', error: error.message });
+    }
+});
+
+
+router.delete('/deletedatahistory/:id', async (req, res) => {
+    const id = req.params.id;
+
+    console.log('Deleting data with id:', id);
+    
+    try {
+        const result = await searchedrecipelist.findByIdAndDelete({ _id: id });
+        if (result) {
+            res.status(200).json({ message: 'Data deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Data not found' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: `Internal server error ${id}` });       
+    }
+});
+router.get('/getdatahistory',async(req,res)=>{
+    console.log("req.body",req.body);
+    
+try{
+const alldata=await searchedrecipelist.find()
+res.status(200).json(alldata)
+}catch(err){
+res.status(500).json('error')
+
+}
+})
+
 
 
 // router.post('/recipelistupload', async (req, res) => {
