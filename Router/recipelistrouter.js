@@ -27,6 +27,18 @@ router.post('/searchedrecipeupload', async (req, res) => {
         res.status(500).json({ message: 'Failed to save chat message', error: error.message });
     }
 });
+router.get('/getdatahistory/:id',async(req,res)=>{
+    const userId = req.params.id;
+    console.log("req.body",req.body);
+    
+try{
+const alldata=await recipelist.find({userId})
+res.status(200).json(alldata)
+}catch(err){
+res.status(500).json('error')
+
+}
+})
 
 
 router.delete('/deletedatahistory/:id', async (req, res) => {
